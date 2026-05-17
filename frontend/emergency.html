@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IA Doctor — Urgences</title>
+  <meta name="description" content="Accédez aux urgences et aux hôpitaux proches avec IA Doctor." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Animated background - emergency tinted -->
+  <div class="bg-animated">
+    <div class="bg-orb" style="width:500px;height:500px;background:#7F1D1D;top:-150px;left:-100px;opacity:0.2;animation:float 8s ease-in-out infinite;"></div>
+    <div class="bg-orb" style="width:350px;height:350px;background:#991B1B;bottom:-100px;right:-80px;opacity:0.15;animation:float 8s ease-in-out infinite;animation-delay:-3s;"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <div class="page-container">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container navbar-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">🩺</div>
+          <span class="logo-text">IA <span>Doctor</span></span>
+        </a>
+        <ul class="nav-links">
+          <li>
+            <select id="langSwitcher" class="nav-link" style="background:transparent;border:1px solid var(--border);color:var(--text-primary);padding:4px 8px;cursor:pointer;">
+              <option value="fr" style="color:black">FR</option>
+              <option value="en" style="color:black">EN</option>
+              <option value="ar" style="color:black">AR</option>
+            </select>
+          </li>
+          <li><a href="dashboard.html" class="nav-link" id="navDashboard" data-i18n="navDashboard">🏠 Tableau de bord</a></li>
+          <li><a href="history.html" class="nav-link" id="navHistory" data-i18n="navHistory">📜 Historique</a></li>
+          <li><a href="emergency.html" class="nav-link nav-emergency active" id="navEmergency" data-i18n="navEmergency">🆘 Urgence</a></li>
+          <li><a href="index.html" class="nav-link" id="navLogout" data-i18n="navLogout">← Déconnexion</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <div class="container">
+
+        <!-- Emergency alert bar -->
+        <div class="emergency-bar animate-fade-up">
+          <span class="emergency-bar-icon">🚨</span>
+          <div data-i18n="emergencyBarText">
+            <strong>En cas d'urgence vitale</strong> — Composez le <strong>15</strong> (SAMU), le <strong>150</strong> (Maroc) ou le <strong>112</strong> (Europe) immédiatement.
+          </div>
+        </div>
+
+        <!-- Page title -->
+        <div class="page-title animate-fade-up animate-fade-up-d1">
+          <h1 data-i18n="emergencyCenterTitle">🆘 Centre d'urgence</h1>
+          <p data-i18n="emergencyCenterSubtitle">Accès rapide aux hôpitaux et numéros d'urgence</p>
+        </div>
+
+        <!-- SOS Button -->
+        <div class="glass-card animate-fade-up animate-fade-up-d2" style="text-align:center; padding:40px 32px; border-color:rgba(220,38,38,0.25);">
+          <div class="sos-wrapper">
+            <button class="sos-btn" id="sosBtn" onclick="handleSOS()" aria-label="Bouton SOS urgence">
+              SOS
+              <span class="sos-label" data-i18n="sosLabel">URGENCE</span>
+            </button>
+            <p style="font-size:14px;color:var(--text-secondary);max-width:300px;line-height:1.6;">
+              <span data-i18n="sosDescription">Appuyez pour appeler le SAMU (15)</span><br/>
+              <span style="font-size:12px;color:var(--text-muted);" data-i18n="sosSubdescription">Votre position sera partagée automatiquement</span>
+            </p>
+          </div>
+
+          <!-- Emergency numbers grid -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;">
+            <a href="tel:15" class="btn btn-danger" id="callSamuBtn" style="flex-direction:column;gap:4px;padding:18px 12px;">
+              <span style="font-size:22px;">📞</span>
+              <span style="font-size:18px;font-weight:800;">15</span>
+              <span style="font-size:11px;opacity:0.85;">SAMU</span>
+            </a>
+            <a href="tel:150" class="btn btn-danger" id="callMarocBtn" style="flex-direction:column;gap:4px;padding:18px 12px;background:linear-gradient(135deg,#92400E,#D97706);">
+              <span style="font-size:22px;">🇲🇦</span>
+              <span style="font-size:18px;font-weight:800;">150</span>
+              <span style="font-size:11px;opacity:0.85;">Maroc</span>
+            </a>
+            <a href="tel:112" class="btn btn-danger" id="callEuropeBtn" style="flex-direction:column;gap:4px;padding:18px 12px;background:linear-gradient(135deg,#1E3A5F,#2563EB);">
+              <span style="font-size:22px;">🌍</span>
+              <span style="font-size:18px;font-weight:800;">112</span>
+              <span style="font-size:11px;opacity:0.85;">Europe</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Hospitals list -->
+        <div class="glass-card animate-fade-up animate-fade-up-d3" style="margin-top:24px;">
+          <div class="section-header">
+            <h2>🏥 Hôpitaux à proximité</h2>
+            <p>Établissements médicaux les plus proches de votre position</p>
+          </div>
+
+          <!-- Google Maps iframe -->
+          <div style="width:100%; height:300px; border-radius:var(--radius-md); overflow:hidden; margin-bottom:24px; border:1px solid var(--border); box-shadow:var(--shadow-card);">
+            <iframe 
+              width="100%" 
+              height="100%" 
+              frameborder="0" 
+              scrolling="no" 
+              marginheight="0" 
+              marginwidth="0" 
+              src="https://maps.google.com/maps?q=Casablanca,Rabat&t=m&z=8&output=embed&iwloc=near" 
+              style="filter: invert(90%) hue-rotate(180deg) contrast(110%);" 
+              aria-label="Carte des hôpitaux">
+            </iframe>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;" id="hospitalsList">
+
+            <!-- Hospital 1 -->
+            <div class="hospital-card animate-fade-up">
+              <div class="hospital-info">
+                <h3>Hôpital Ibn Sina</h3>
+                <div class="hospital-meta">
+                  <span class="hospital-distance">📍 1.2 km</span>
+                  <span class="stars">⭐ 4.2</span>
+                  <span>Rabat</span>
+                </div>
+              </div>
+              <div class="hospital-actions">
+                <a href="tel:+212537672828" class="btn btn-danger" id="callHospital1Btn" aria-label="Appeler Hôpital Ibn Sina">📞 Appeler</a>
+                <a href="https://maps.google.com/?q=Hôpital+Ibn+Sina+Rabat" target="_blank" class="btn btn-ghost" id="mapHospital1Btn" aria-label="Itinéraire Hôpital Ibn Sina">🗺️ Itinéraire</a>
+              </div>
+            </div>
+
+            <!-- Hospital 2 -->
+            <div class="hospital-card animate-fade-up" style="animation-delay:0.05s;">
+              <div class="hospital-info">
+                <h3>Clinique Agdal</h3>
+                <div class="hospital-meta">
+                  <span class="hospital-distance">📍 2.5 km</span>
+                  <span class="stars">⭐ 4.5</span>
+                  <span>Rabat</span>
+                </div>
+              </div>
+              <div class="hospital-actions">
+                <a href="tel:+212537778899" class="btn btn-danger" id="callHospital2Btn" aria-label="Appeler Clinique Agdal">📞 Appeler</a>
+                <a href="https://maps.google.com/?q=Clinique+Agdal+Rabat" target="_blank" class="btn btn-ghost" id="mapHospital2Btn" aria-label="Itinéraire Clinique Agdal">🗺️ Itinéraire</a>
+              </div>
+            </div>
+
+            <!-- Hospital 3 -->
+            <div class="hospital-card animate-fade-up" style="animation-delay:0.1s;">
+              <div class="hospital-info">
+                <h3>CHU Ibn Rochd</h3>
+                <div class="hospital-meta">
+                  <span class="hospital-distance">📍 3.8 km</span>
+                  <span class="stars">⭐ 4.0</span>
+                  <span>Casablanca</span>
+                </div>
+              </div>
+              <div class="hospital-actions">
+                <a href="tel:+212522224141" class="btn btn-danger" id="callHospital3Btn" aria-label="Appeler CHU Ibn Rochd">📞 Appeler</a>
+                <a href="https://maps.google.com/?q=CHU+Ibn+Rochd+Casablanca" target="_blank" class="btn btn-ghost" id="mapHospital3Btn" aria-label="Itinéraire CHU Ibn Rochd">🗺️ Itinéraire</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Back to dashboard -->
+        <div style="text-align:center;margin-top:32px;" class="animate-fade-up">
+          <a href="dashboard.html" class="btn btn-ghost" id="backDashboardBtn" data-i18n="backDashboard">← Retour au tableau de bord</a>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+  <script>
+    function handleSOS() {
+      const toastMsg = DEFAULT_LANGUAGE === 'en' ? '🚨 Calling emergency services...' :
+                       (DEFAULT_LANGUAGE === 'ar' ? '🚨 جاري الاتصال بخدمات الطوارئ...' : '🚨 Appel du SAMU en cours...');
+      showToast(toastMsg, 'error');
+      setTimeout(() => {
+        window.location.href = 'tel:15';
+      }, 800);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const switcher = document.getElementById('langSwitcher');
+      if (switcher) {
+        switcher.value = DEFAULT_LANGUAGE;
+        switcher.addEventListener('change', (e) => {
+          DEFAULT_LANGUAGE = e.target.value;
+          localStorage.setItem('medai_selected_lang', DEFAULT_LANGUAGE);
+          applyTranslations(DEFAULT_LANGUAGE);
+          loadHospitals();
+        });
+      }
+      applyTranslations(DEFAULT_LANGUAGE);
+    });
+  </script>
+</body>
+</html>

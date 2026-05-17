@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IA Doctor — Historique</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Animated background -->
+  <div class="bg-animated">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <div class="page-container">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container navbar-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">🩺</div>
+          <span class="logo-text">IA <span>Doctor</span></span>
+        </a>
+        <ul class="nav-links">
+          <li>
+            <select id="langSwitcher" class="nav-link" style="background:transparent;border:1px solid var(--border);color:var(--text-primary);padding:4px 8px;cursor:pointer;">
+              <option value="fr" style="color:black">FR</option>
+              <option value="en" style="color:black">EN</option>
+              <option value="ar" style="color:black">AR</option>
+            </select>
+          </li>
+          <li><a href="dashboard.html" class="nav-link" id="navDashboard" data-i18n="navDashboard">🏠 Tableau de bord</a></li>
+          <li><a href="history.html" class="nav-link active" id="navHistory" data-i18n="navHistory">📜 Historique</a></li>
+          <li><a href="emergency.html" class="nav-link nav-emergency" id="navEmergency" data-i18n="navEmergency">🆘 Urgence</a></li>
+          <li><a href="index.html" class="nav-link" id="navLogout" data-i18n="navLogout">← Déconnexion</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <div class="container">
+        <!-- Page title -->
+        <div class="page-title animate-fade-up">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h1 data-i18n="historyTitle">📋 Historique médical</h1>
+              <p data-i18n="historySubtitle">Vos dernières analyses de symptômes enregistrées</p>
+            </div>
+            <button onclick="clearAllHistory()" class="btn btn-ghost" style="border-color:rgba(220,38,38,0.4); color:#FECACA;" data-i18n="clearHistoryBtn">🗑️ Effacer tout</button>
+          </div>
+        </div>
+
+        <!-- History Container -->
+        <div id="historyContainer" style="display:flex;flex-direction:column;gap:16px;">
+          <!-- History cards will be rendered here -->
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  
+  <script src="app.js"></script>
+  <script>
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem('ia_doctor_history') || '[]');
+      const container = document.getElementById('historyContainer');
+      
+      const t = translations[DEFAULT_LANGUAGE] || translations['fr'];
+      
+      if (history.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card animate-fade-up" style="text-align:center; padding:40px;">
+            <div style="font-size:32px; margin-bottom:12px;">📭</div>
+            <h3 style="margin-bottom:8px;">${t.emptyHistory}</h3>
+            <a href="dashboard.html" class="btn btn-primary" style="margin-top:20px;" data-i18n="navDashboard">${t.navDashboard}</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = history.map((entry, index) => {
+        let riskColor = '#FBBF24'; // Yellow
+        let riskBorder = 'rgba(251, 191, 36, 0.2)';
+        if (entry.urgencyLevel === 'low') {
+          riskColor = '#10B981'; // Green
+          riskBorder = 'rgba(16, 185, 129, 0.2)';
+        } else if (entry.urgencyLevel === 'high' || entry.urgencyLevel === 'emergency') {
+          riskColor = '#EF4444'; // Red
+          riskBorder = 'rgba(239, 68, 68, 0.2)';
+        }
+
+        const dateLocale = DEFAULT_LANGUAGE === 'en' ? 'en-US' : (DEFAULT_LANGUAGE === 'ar' ? 'ar-MA' : 'fr-FR');
+        const entryTime = entry.timestamp || parseInt(entry.id) || Date.now();
+        const formattedDate = new Date(entryTime).toLocaleString(dateLocale);
+
+        const specialistLabel = DEFAULT_LANGUAGE === 'en' ? 'Specialist' : (DEFAULT_LANGUAGE === 'ar' ? 'الأخصائي' : 'Spécialiste');
+        const deleteBtnText = DEFAULT_LANGUAGE === 'en' ? 'Delete' : (DEFAULT_LANGUAGE === 'ar' ? 'حذف' : 'Supprimer');
+        const symptomsLabel = DEFAULT_LANGUAGE === 'en' ? 'Symptoms' : (DEFAULT_LANGUAGE === 'ar' ? 'الأعراض' : 'Symptômes');
+        const causeLabel = DEFAULT_LANGUAGE === 'en' ? 'Possible Cause' : (DEFAULT_LANGUAGE === 'ar' ? 'السبب المحتمل' : 'Cause possible');
+
+        return `
+          <div class="glass-card animate-fade-up" style="animation-delay:${Math.min(index * 0.05, 0.5)}s;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:12px;">
+              <div>
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">🕒 ${formattedDate}</div>
+                <div style="font-weight:600; font-size:15px; display:flex; align-items:center; gap:8px;">
+                  ${specialistLabel} : ${entry.specialistNeeded}
+                  ${renderUrgencyBadge(entry.urgencyLevel)}
+                </div>
+              </div>
+              <button onclick="deleteHistoryEntry('${entry.id}')" class="btn btn-ghost" style="padding:6px 12px; font-size:12px; border-color:rgba(220,38,38,0.3); color:#FECACA;">${deleteBtnText}</button>
+            </div>
+            <div style="font-size:14px; color:var(--text-secondary); margin-bottom:12px; padding:12px; background:rgba(255,255,255,0.03); border-radius:var(--radius-sm);">
+              <strong>${symptomsLabel} :</strong> ${entry.symptoms.length > 150 ? entry.symptoms.substring(0, 150) + '...' : entry.symptoms}
+            </div>
+            <div style="font-size:14px; color:var(--text-primary);">
+              <strong>${causeLabel} :</strong> ${entry.possibleCause}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.deleteHistoryEntry = function(id) {
+      let history = JSON.parse(localStorage.getItem('ia_doctor_history') || '[]');
+      history = history.filter(entry => entry.id !== id);
+      localStorage.setItem('ia_doctor_history', JSON.stringify(history));
+      renderHistory();
+      
+      const toastMsg = DEFAULT_LANGUAGE === 'en' ? '✅ Analysis deleted from history.' :
+                       (DEFAULT_LANGUAGE === 'ar' ? '✅ تم حذف التحليل من السجل.' : "✅ Analyse supprimée de l'historique.");
+      showToast(toastMsg, 'success', 2000);
+    }
+
+    window.clearAllHistory = function() {
+      const history = JSON.parse(localStorage.getItem('ia_doctor_history') || '[]');
+      if (history.length === 0) return;
+      
+      const confirmMsg = DEFAULT_LANGUAGE === 'en' ? 'Do you really want to clear your entire medical history?' :
+                         (DEFAULT_LANGUAGE === 'ar' ? 'هل تريد حقًا مسح سجلك الطبي بالكامل؟' : 'Voulez-vous vraiment effacer tout votre historique médical ?');
+      const toastMsg = DEFAULT_LANGUAGE === 'en' ? '🗑️ Medical history fully cleared.' :
+                       (DEFAULT_LANGUAGE === 'ar' ? '🗑️ تم مسح السجل بالكامل.' : '🗑️ Historique entièrement effacé.');
+
+      if (confirm(confirmMsg)) {
+        localStorage.removeItem('ia_doctor_history');
+        renderHistory();
+        showToast(toastMsg, 'success', 2000);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const switcher = document.getElementById('langSwitcher');
+      if (switcher) {
+        switcher.value = DEFAULT_LANGUAGE;
+        switcher.addEventListener('change', (e) => {
+          DEFAULT_LANGUAGE = e.target.value;
+          localStorage.setItem('medai_selected_lang', DEFAULT_LANGUAGE);
+          applyTranslations(DEFAULT_LANGUAGE);
+          renderHistory();
+        });
+      }
+      applyTranslations(DEFAULT_LANGUAGE);
+      renderHistory();
+    });
+  </script>
+</body>
+</html>

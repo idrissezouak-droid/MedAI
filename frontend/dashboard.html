@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IA Doctor — Tableau de bord</title>
+  <meta name="description" content="Analysez vos symptômes avec l'IA médicale de IA Doctor." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Animated background -->
+  <div class="bg-animated">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <div class="page-container">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container navbar-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">🩺</div>
+          <span class="logo-text">IA <span>Doctor</span></span>
+        </a>
+        <ul class="nav-links">
+          <li>
+            <select id="langSwitcher" class="nav-link" style="background:transparent;border:1px solid var(--border);color:var(--text-primary);padding:4px 8px;cursor:pointer;">
+              <option value="fr" style="color:black">FR</option>
+              <option value="en" style="color:black">EN</option>
+              <option value="ar" style="color:black">AR</option>
+            </select>
+          </li>
+          <li><a href="dashboard.html" class="nav-link active" id="navDashboard" data-i18n="navDashboard">🏠 Tableau de bord</a></li>
+          <li><a href="history.html" class="nav-link" id="navHistory">📜 Historique</a></li>
+          <li><a href="emergency.html" class="nav-link nav-emergency" id="navEmergency" data-i18n="navEmergency">🆘 Urgence</a></li>
+          <li><a href="index.html" class="nav-link" id="navLogout" data-i18n="navLogout">← Déconnexion</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="main-content">
+      <div class="container">
+
+        <!-- Page title -->
+        <div class="page-title animate-fade-up">
+          <h1 data-i18n="pageTitle">Analyse des symptômes</h1>
+          <p data-i18n="pageSubtitle">Décrivez vos symptômes en détail pour une orientation médicale précise.</p>
+        </div>
+
+        <!-- Stats row -->
+        <div class="stats-row animate-fade-up animate-fade-up-d1">
+          <div class="glass-card stat-card">
+            <div class="stat-number">98%</div>
+            <div class="stat-label" data-i18n="statPrecision">Précision IA</div>
+          </div>
+          <div class="glass-card stat-card">
+            <div class="stat-number">&lt;3s</div>
+            <div class="stat-label" data-i18n="statTime">Temps d'analyse</div>
+          </div>
+          <div class="glass-card stat-card">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label" data-i18n="statAvailability">Disponibilité</div>
+          </div>
+        </div>
+
+        <!-- Analysis card -->
+        <div class="glass-card animate-fade-up animate-fade-up-d2" style="margin-bottom:24px;">
+          <div class="section-header">
+            <h2 data-i18n="symptomSectionTitle">🔬 Décrire vos symptômes</h2>
+            <p data-i18n="symptomSectionSubtitle">Soyez précis : durée, intensité, localisation de la douleur.</p>
+          </div>
+
+          <form id="symptomForm" novalidate>
+            <div class="form-group" style="margin-bottom:20px; position:relative;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <label for="symptomsInput" data-i18n="symptomsLabel" style="margin-bottom:0;">Vos symptômes</label>
+                <button type="button" id="micBtn" class="btn btn-ghost" style="padding:6px 12px; font-size:13px; border-radius:100px; gap:6px;" aria-label="Activer la dictée vocale">
+                  <span id="micIcon">🎙️</span> <span id="micBtnText" data-i18n="micBtnText">Dictée vocale</span>
+                </button>
+              </div>
+              <textarea
+                id="symptomsInput"
+                name="symptoms"
+                placeholder="Ex: J'ai des douleurs thoraciques depuis 2 heures, accompagnées d'essoufflement et de sueurs froides..."
+                data-i18n-placeholder="symptomsPlaceholder"
+                rows="5"
+                required
+              ></textarea>
+            </div>
+
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary btn-lg" id="analyzeBtn" style="flex:1; min-width:200px;">
+                <span id="analyzeBtnText" data-i18n="analyzeBtnText">🔍 Analyser avec l'IA</span>
+                <span id="analyzeSpinner" class="spinner" style="display:none;"></span>
+              </button>
+              <button type="button" class="btn btn-ghost" id="clearBtn" onclick="clearResults()" style="min-width:120px;">
+                <span data-i18n="clearBtnText">🗑️ Effacer</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Result card -->
+        <div class="glass-card result-card" id="resultCard">
+          <div class="result-header">
+            <div>
+              <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:6px;" data-i18n="resultTitle">Résultat de l'analyse IA</div>
+              <h2 style="font-size:20px;font-weight:700;" id="resultCause">—</h2>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <button onclick="copyDiagnostic()" class="btn btn-ghost" style="padding:6px 12px; font-size:13px; border-color:var(--border-active);" data-i18n="copyDiagnosticBtn">📋 Copier le diagnostic</button>
+              <button onclick="downloadPDF()" class="btn btn-ghost" style="padding:6px 12px; font-size:13px; border-color:var(--border-active);" data-i18n="downloadDiagnosticBtn">📄 Télécharger le diagnostic</button>
+              <div id="urgencyBadge"></div>
+            </div>
+          </div>
+
+          <div class="result-grid">
+            <div class="result-item result-item-full">
+              <div class="result-item-label" data-i18n="resultRecommendationLabel">💊 Recommandation</div>
+              <div class="result-item-value" id="resultRecommendation">—</div>
+            </div>
+            <div class="result-item">
+              <div class="result-item-label" data-i18n="resultSpecialistLabel">🩺 Spécialiste conseillé</div>
+              <div class="result-item-value" id="resultSpecialist">—</div>
+            </div>
+            <div class="result-item">
+              <div class="result-item-label" data-i18n="requestIdLabel">🆔 ID de requête</div>
+              <div class="result-item-value" id="resultRequestId" style="font-size:12px;color:var(--text-muted);word-break:break-all;">—</div>
+            </div>
+            <div class="result-item result-item-full" id="recommendedDoctorsContainer" style="display:none; margin-top: 8px; background: transparent; border: none; padding: 0;">
+              <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;color:var(--text-primary);" data-i18n="recommendedDoctorsLabel">👨‍⚕️ Médecins recommandés</h3>
+              <div id="doctorsList" style="display:flex;flex-direction:column;gap:12px;"></div>
+            </div>
+            <div class="result-item result-item-full" id="emergencyAlertContainer" style="display:none;">
+              <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.4);border-radius:var(--radius-sm);padding:16px;display:flex;align-items:center;gap:12px;">
+                <span style="font-size:24px;">🚨</span>
+                <div>
+                  <div style="font-weight:700;color:var(--emergency-light);margin-bottom:4px;" data-i18n="emergencyAlertTitle">URGENCE MÉDICALE DÉTECTÉE</div>
+                  <div style="font-size:13px;color:#FECACA;" data-i18n="emergencyAlertSubtitle">Appelez le 15 (SAMU) ou rendez-vous immédiatement aux urgences les plus proches.</div>
+                </div>
+                <a href="emergency.html" class="btn btn-danger" style="margin-left:auto;flex-shrink:0;" id="goEmergencyBtn" data-i18n="emergencyAlertBtn">🆘 Urgences</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick access emergency -->
+        <div class="glass-card animate-fade-up animate-fade-up-d3" style="margin-top:24px;border-color:rgba(220,38,38,0.2);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+            <div>
+              <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;" data-i18n="hospitalsTitle">🏥 Hôpitaux à proximité</h3>
+              <p style="font-size:13px;color:var(--text-secondary);" data-i18n="hospitalsSubtitle">5 établissements médicaux proches de votre position</p>
+            </div>
+            <a href="emergency.html" class="btn btn-danger" id="viewHospitalsBtn" data-i18n="viewHospitalsBtn">Voir les hôpitaux →</a>
+          </div>
+        </div>
+
+        <!-- Medical History Section -->
+        <div class="glass-card animate-fade-up animate-fade-up-d4" style="margin-top:24px;" id="historySection">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:16px;">
+            <div>
+              <h3 style="font-size:18px; font-weight:700; display:flex; align-items:center; gap:8px;" data-i18n="historyTitle">📋 Historique médical</h3>
+              <p style="font-size:13px; color:var(--text-secondary);" data-i18n="historySubtitle">Vos dernières analyses de symptômes enregistrées</p>
+            </div>
+            <button onclick="clearAllHistory()" class="btn btn-ghost" style="padding:6px 12px; font-size:13px; border-color:var(--border-active);" data-i18n="clearHistoryBtn">🗑️ Tout effacer</button>
+          </div>
+          
+          <div id="historyList" style="display:flex; flex-direction:column; gap:12px;">
+            <div style="text-align:center; padding:20px; color:var(--text-muted);" data-i18n="emptyHistory">Aucune analyse enregistrée pour le moment.</div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

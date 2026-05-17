@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IA Doctor — Connexion</title>
+  <meta name="description" content="Connectez-vous à IA Doctor, votre assistant médical alimenté par l'IA." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .demo-hint {
+      background: rgba(37,99,235,0.08);
+      border: 1px solid rgba(37,99,235,0.25);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 4px;
+    }
+    .demo-hint strong { color: var(--primary-light); }
+  </style>
+</head>
+<body>
+  <!-- Animated background -->
+  <div class="bg-animated">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <div class="page-container">
+    <div class="login-wrapper">
+      <div class="login-card glass-card animate-fade-up">
+
+        <!-- Logo -->
+        <div class="login-logo">
+          <div class="logo-icon-lg">🩺</div>
+          <h1>IA <span>Doctor</span></h1>
+          <p>Votre assistant médical intelligent</p>
+        </div>
+
+        <!-- Form -->
+        <form class="login-form" id="loginForm" novalidate>
+
+          <div class="form-group animate-fade-up animate-fade-up-d1">
+            <label for="email">Adresse e-mail</label>
+            <div class="input-wrapper">
+              <span class="input-icon">✉️</span>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="vous@exemple.com"
+                autocomplete="email"
+                value="demo@iadoctor.ma"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group animate-fade-up animate-fade-up-d2">
+            <label for="password">Mot de passe</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                value="demo1234"
+                required
+              />
+            </div>
+            <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full btn-lg animate-fade-up animate-fade-up-d3" id="loginBtn">
+            <span id="loginBtnText">Se connecter</span>
+            <span id="loginSpinner" class="spinner" style="display:none;"></span>
+          </button>
+
+          <div class="demo-hint">
+            🚀 <strong>Démo</strong> — Cliquez sur "Se connecter" pour accéder au tableau de bord
+          </div>
+
+          <div class="divider">ou</div>
+
+          <button type="button" class="btn btn-ghost btn-full" onclick="window.location.href='emergency.html'" id="emergencyQuickBtn">
+            🆘 Accès urgence rapide
+          </button>
+
+          <p class="signup-link">
+            Pas encore de compte ? <a href="#">Créer un compte</a>
+          </p>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>
